@@ -1,9 +1,9 @@
 ---
 grid_router_version: 1.4.0 # Install GridRouter version
 grid_router_path: /etc/grid-router # Path to GridRouter
-grid_router_qouta_path: /etc/grid-router/quota # Path to GridRouter quota
-grid_router_qouta_user: selenoid # GridRouter quota user
-grid_router_qouta_password: selenoid # GridRouter quota password
+grid_router_quota_path: /etc/grid-router/quota # Path to GridRouter quota
+grid_router_quota_user: selenoid # GridRouter quota user
+grid_router_quota_password: selenoid # GridRouter quota password
 grid_router_time_zone: Europe/Moscow # Timezone in container
 grid_router_port: 4444 # GridRouter port
 grid_router_sctl_version: 1.2.0 # sctl version — https://github.com/seleniumkit/sctl/releases

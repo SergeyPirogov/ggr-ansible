@@ -6,33 +6,25 @@
   - { name: docker-py }
   - { name: passlib }
 
-- name: Grid Router | Download sctl
-  get_url:
-    url: "https://github.com/seleniumkit/sctl/releases/download/{{ grid_router_sctl_version }}/sctl_linux_amd64"
-    dest: /usr/local/bin/sctl
-    mode: 0755
-  changed_when: False
+- debug:
+    msg: Ggr home is {{ grid_router_quota_path }}
 
 - name: Grid Router | Create config dir
   file:
-    path: "{{ grid_router_qouta_path }}"
+    path: "{{ grid_router_quota_path }}"
     state: directory
     mode: 0755
 
-- name: Grid Router | Copy quota json template
-  template:
-    src: quota_template.json.j2
-    dest: "{{ grid_router_qouta_path }}/quota_template.json"
-    mode: 0644
-
-- name: Grid Router | Generate quota file
-  shell: sctl generate --inputFile "{{ grid_router_qouta_path }}/quota_template.json" --outputDirectory "{{ grid_router_qouta_path }}"
+- name: Copy quota file
+  copy:
+    src: "{{ quota_file }}"
+    dest: "{{ grid_router_quota_path }}"
 
 - name: Grid Router | Setup quota password
   htpasswd:
     path: "{{ grid_router_path }}/users.htpasswd"
-    name: "{{ grid_router_qouta_user }}"
-    password: "{{ grid_router_qouta_password}}"
+    name: "{{ grid_router_quota_user }}"
+    password: "{{ grid_router_quota_password}}"
     mode: 0640
 
 - name: Grid Router | Run Grid Router container
@@ -50,5 +42,19 @@
     ports:
     - "{{ grid_router_port }}:4444"
     
- - name: Reload GGR
-   shell: "docker kill -s HUP ggr"
+- name: Reload GGR
+  shell: "docker kill -s HUP grid_router"
+
+- name: Run ggr-ui
+  docker_container:
+    name: ggr-ui
+    restart_policy: always
+    image: "aerokube/ggr-ui:latest-release"
+    state: started
+    volumes:
+    - "{{ grid_router_quota_path }}:/etc/grid-router/quota:ro"
+    ports:
+    - "8888:8888"
+
+- name: Reload GGR-UI
+  shell: "docker kill -s HUP ggr-ui"
